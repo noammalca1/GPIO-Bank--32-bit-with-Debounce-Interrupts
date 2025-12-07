@@ -62,19 +62,25 @@ Top-level module: **`gpio_32_top`** Testbench: **`tb_gpio_32`**
 
 ## Modules Description
 
-* **RTL Modules Breakdown**
-    * **GPIO Top-Level** – [`gpio_32_top.v`](gpio_32_top.v)  
-        Integrates all submodules (APB registers, pin interface, debounce logic, interrupt controller) into one coherent GPIO peripheral.
-    * **APB Register File** – [`gpio_32_apb_regs.v`](gpio_32_apb_regs.v)  
-        Implements memory-mapped registers: direction, output value, debounce configuration, interrupt mask/type/polarity, and W1C interrupt status.
-    * **Pin Interface + 2-FF Synchronizer** – [`gpio_32_pins.v`](gpio_32_pins.v)  
-        Handles GPIO direction, drives output values to pads, and safely synchronizes asynchronous external inputs using a dual flip-flop synchronizer.
-    * **Debounce Engine** – [`gpio_32_debounce.v`](gpio_32_debounce.v)  
-        Provides per-bit digital debounce with configurable timeout, filtering out mechanical bounce and noise before data reaches the CPU or interrupt system.
-    * **Interrupt Controller** – [`gpio_32_interrupts.v`](gpio_32_interrupts.v)  
-        Detects rising/falling edges and level-based events, maintains sticky interrupt status bits, and produces a bank-level IRQ signal.
-    * **Verification Testbench** – [`tb_gpio_32.v`](tb_gpio_32.v)  
-        Self-checking SystemVerilog testbench validating GPIO direction, debounce behavior, rising/level interrupt functionality, and W1C clearing.
+- **RTL Modules Breakdown**
+  - **GPIO Top-Level** – [gpio_32_top.v](gpio_32_top.v)  
+    Integrates all submodules (APB registers, pin interface, debounce logic, interrupt controller) into one coherent GPIO peripheral.
+
+  - **APB Register File** – [gpio_32_apb_regs.v](gpio_32_apb_regs.v)  
+    Implements memory-mapped registers: direction, output value, debounce configuration, interrupt mask/type/polarity, and W1C interrupt status.
+
+  - **Pin Interface + 2-FF Synchronizer** – [gpio_32_pins.v](gpio_32_pins.v)  
+    Handles GPIO direction, drives output values to pads, and safely synchronizes asynchronous external inputs using a dual flip-flop synchronizer.
+
+  - **Debounce Engine** – [gpio_32_debounce.v](gpio_32_debounce.v)  
+    Provides per-bit digital debounce with configurable timeout, filtering out mechanical bounce and noise before data reaches the CPU or interrupt system.
+
+  - **Interrupt Controller** – [gpio_32_interrupts.v](gpio_32_interrupts.v)  
+    Detects rising/falling edges and level-based events, maintains sticky interrupt status bits, and produces a bank-level IRQ signal.
+
+  - **Verification Testbench** – [tb.v](tb.v)  
+    Self-checking SystemVerilog testbench validating GPIO direction, debounce behavior, rising/level interrupt functionality, and W1C clearing.
+
 
 ---
 
