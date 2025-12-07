@@ -99,10 +99,10 @@ graph TD
     Pads((Physical Pads))
     end
 
-    %% APB Interface (Control & Write)
+    %% APB Interface
     APB -- "PADDR, PWDATA, Control" --> Regs
     
-    %% Internal Logic Flow
+    %% Configuration Paths
     Regs -- "gpio_out / dir" --> Sync
     Regs -- "Config (Debounce)" --> Debounce
     Regs -- "Config (Mask/Pol)" --> IntCtrl
@@ -113,11 +113,13 @@ graph TD
     %% Input from Pads
     Pads -- "Raw Input" --> Sync
     Sync -- "Synchronized" --> Debounce
+    
+    %% Split Flows
     Debounce -- "Stable Signal" --> Regs
     Debounce -- "Clean Edges" --> IntCtrl
 
-    %% Read Back to CPU
-    Regs -- "PRDATA" --> APB
+    %% Returns to CPU
+    Regs -- "PRDATA (Read)" --> APB
     
-    %% Interrupt to CPU
-    IntCtrl -- "gpio_irq" --> APB
+    %% Interrupt Notification - שיניתי כאן למונח הסטנדרטי
+    IntCtrl -- "Interrupt Request (IRQ)" --> APB
