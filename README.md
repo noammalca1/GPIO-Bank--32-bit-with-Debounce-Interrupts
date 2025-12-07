@@ -102,10 +102,11 @@ graph TD
     %% APB Interface
     APB -- "PADDR, PWDATA, Control" --> Regs
     
-    %% Configuration Paths
+    %% Internal Logic Flow
     Regs -- "gpio_out / dir" --> Sync
-    Regs -- "Config (Debounce)" --> Debounce
-    Regs -- "Config (Mask/Pol)" --> IntCtrl
+    Regs -- "Config (Debounce Cycles)" --> Debounce
+    
+    Regs -- "Enables (Rise/Fall/Level)" --> IntCtrl
 
     %% Output to Pads
     Sync -- "Drive Output" --> Pads
@@ -116,10 +117,10 @@ graph TD
     
     %% Split Flows
     Debounce -- "Stable Signal" --> Regs
-    Debounce -- "Clean Edges" --> IntCtrl
+    Debounce -- "Clean Edges / Levels" --> IntCtrl
 
     %% Returns to CPU
     Regs -- "PRDATA (Read)" --> APB
     
-    %% Interrupt Notification - שיניתי כאן למונח הסטנדרטי
-    IntCtrl -- "Interrupt Request (IRQ)" --> APB
+    %% Interrupt Notification
+    IntCtrl -- "Event Notification (IRQ)" --> APB
