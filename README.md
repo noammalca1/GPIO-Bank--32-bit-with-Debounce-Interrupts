@@ -1,10 +1,10 @@
-# GPIO-Bank--32-bit-with-Debounce-Interrupts
+# GPIO-Bank-32-bit-with-Debounce-Interrupts
 Full APB based 32 bit GPIO peripheral featuring 2FF input synchronization, programmable debounce, edge/level interrupt controller, and a clean top level integration of pins and APB register file.
 # 32-Bit APB GPIO Bank with Debounce & Interrupts (Verilog HDL)
 
 **Author:** Noam Malca  
 **Institution:** Bar-Ilan University  
-**Focus:** Digital Design – GPIO, APB, Debounce, and Interrupts
+**Focus:** Digital Design - GPIO, APB, Debounce, and Interrupts
 
 This project implements a complete 32-bit GPIO peripheral in Verilog HDL, suitable for integration into APB-based SoC designs.  
 It includes a memory-mapped APB register file, a 2-flop input synchronizer, per-bit digital debounce, a configurable edge/level interrupt controller, and a self-checking SystemVerilog testbench (`tb_gpio_32`) that verifies GPIO direction, debounce behavior, and interrupt functionality.
