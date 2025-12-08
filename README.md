@@ -166,7 +166,7 @@ graph TD
     Regs -- "PRDATA (Read)" --> APB
     
     %% Interrupt Notification
-    IntCtrl -- "Event Notification (IRQ)" --> APB
+    IntCtrl -- "Interrupt Request (IRQ)" --> APB
 ```
 
 
