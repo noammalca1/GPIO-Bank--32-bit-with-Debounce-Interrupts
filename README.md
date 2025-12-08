@@ -160,7 +160,7 @@ graph TD
     
     %% Split Flows
     Debounce -- "Stable Signal" --> Regs
-    Debounce -- "Clean Edges / Levels" --> IntCtrl
+    Debounce -- "Clean Edges" --> IntCtrl
 
     %% Returns to CPU
     Regs -- "PRDATA (Read)" --> APB
