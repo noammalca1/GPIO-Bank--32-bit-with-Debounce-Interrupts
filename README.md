@@ -220,7 +220,8 @@ The testbench then drives `gpio_in_raw[0]` to `1` and holds it stable for 6 cloc
 * **Update:** Exactly one clock cycle after reaching the threshold, `debounced_gpio_in` updates to `1`.
 * **Verification:** A final APB read transaction returns `PRDATA = 1`, confirming that the stable signal was correctly captured.
 
-<img width="1432" height="376" alt="image" src="https://github.com/user-attachments/assets/511b7c36-2e44-49bd-8836-db14d6a05b10" />
+<img width="1450" height="373" alt="image" src="https://github.com/user-attachments/assets/029a3dca-632f-4222-8e00-c8d82254aa02" />
+
 
 
 
