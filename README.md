@@ -145,42 +145,9 @@ graph TD
     
     %% Interrupt Notification
     IntCtrl -- "Event Notification (IRQ)" --> APB
+```
 
-## Verification Testbench
+אני רוצה להוסיף עוד דדברים מתחת לדאטה פלואו וכל פעם שאני מוסיף זה נשבר
 
-### ▸ Deep Dive: Test 1 Analysis (Direction & Output)
-
-The first test in the verification environment focuses on validating basic APB write operations to the GPIO direction register (`GPIO_DIR`) and the output data register (`GPIO_OUT`).  
-This test demonstrates correct APB timing, register update behavior, and propagation of control signals into the GPIO pins module.
-
----
-
-### **1. Writing to `GPIO_DIR` (0x00)**
-
-During the waveform analysis, we observe the following sequence:
-
-- On the rising edge of `PCLK`, the testbench asserts `PSEL = 1` and `PWRITE = 1`, while `PADDR = 0x00` and `PWDATA = 0x000000FF`.
-- This is the **SETUP phase** of the APB protocol — the bus presents the address and data, but the register file does not latch them yet because `PENABLE = 0`.
-- On the next rising edge, `PENABLE` transitions to `1`, entering the **ACCESS phase**.
-- Only in this cycle (`PSEL = 1`, `PENABLE = 1`, `PWRITE = 1`) does the APB register block update the `gpio_dir` register.
-
-Once `gpio_dir` is updated:
-
-- The `gpio_32_pins` module immediately drives `gpio_oe = gpio_dir`.
-- The waveform clearly shows that the **lower 8 bits become outputs** (`gpio_oe[7:0] = 8'hFF`).
-
-This confirms that the APB write is correctly propagated from:
-CPU → APB bus → Register File → Pin Direction Logic.
-
----
-
-### **2. Writing to `GPIO_OUT` (0x04)**
-
-The testbench performs another APB write, this time to the output register:
-
-- `PADDR` is set to `0x04`, matching the `GPIO_OUT` register address.
-- `PWDATA` is set to `32'hA5A500FF`.
-
-Again, the SETUP phase appears first (`PSEL=1`, `PENABLE=0`), and the data is latched only when:
 
 
