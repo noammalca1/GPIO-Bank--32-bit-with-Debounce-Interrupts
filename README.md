@@ -22,7 +22,7 @@ The design is fully modular and built from the ground up to handle real-world GP
     - [APB Register Map](#apb-register-map)
 - [Data & Control Flow](#data--control-flow)
 - [Verification Testbench](#verification-testbench)
-    - [Test 1 Analysis](#test-1-analysis-(direction-&-output))
+    - [Test 1 Analysis](#test-1-analysis-(direction--output))
 - [Simulation and Waveforms](#simulation-and-waveforms)
 - [License](#license)
 
