@@ -13,23 +13,22 @@ It includes a memory-mapped APB register file, a 2-flop input synchronizer, per-
 The design is fully modular and built from the ground up to handle real-world GPIO use cases such as button inputs, status signals, and event-driven interrupts, while protecting against metastability and mechanical switch bounce.
 
 ---
-
 ## Table of Contents
 
 - [Introduction](#introduction)
 - [System Overview](#system-overview)
-- [Modules & Testbench Description](#modules-description)
+- [Modules Description](#modules-description)
     - [GPIO Top-Level](#gpio-top-level)
     - [APB Register File](#apb-register-file)
     - [Pin Interface + 2-FF Synchronizer](#pin-interface--2-ff-synchronizer)
     - [Debounce Engine](#debounce-engine)
     - [Interrupt Controller](#interrupt-controller)
+    - [Verification Testbench](#verification-testbench-module)
 - [Data & Control Flow](#data--control-flow)
 - [Verification Testbench](#verification-testbench)
-    - [Test 1 Analysis (Direction & Output)](#test-1-analysis-direction--output)
+    - [Deep Dive: Test 1 Analysis](#-deep-dive-test-1-analysis-direction--output)
 - [Simulation and Waveforms](#simulation-and-waveforms)
 - [License](#license)
-
 ---
 
 ## Introduction
@@ -62,45 +61,64 @@ Top-level module: **`gpio_32_top`** Testbench: **`tb_gpio_32`**
 
 ## Modules Description
 
-- **RTL Modules Breakdown**
+### GPIO Top-Level
+**File:** [`gpio_32_top.v`](Verilog_Code/gpio_32_top.v)
 
-    - **GPIO Top-Level** – [`gpio_32_top.v`](Verilog_Code/gpio_32_top.v)  
-      The integration layer that connects the APB bus interface to the internal logic blocks. It handles the signal routing between the register file and the functional units (debounce, interrupt, pins).
-      - **Key Feature:** Acts as the bridge between the system clock domain (`PCLK`) and the external asynchronous world.
+The integration layer that connects the APB bus interface to the internal logic blocks. It handles the signal routing between the register file and the functional units (debounce, interrupt, pins).
+* **Key Feature:** Acts as the bridge between the system clock domain (`PCLK`) and the external asynchronous world.
 
-    - **APB Register File** – [`gpio_32_apb_regs.v`](Verilog_Code/gpio_32_apb_regs.v)  
-      A memory-mapped register bank compliant with the APB protocol. It manages configuration and status reporting.
+---
 
-      **Register Address Map (Offsets):**
-      | Offset | Name | Type | Description |
-      | :--- | :--- | :--- | :--- |
-      | `0x00` | **GPIO_DIR** | RW | Direction Control (0=Input, 1=Output). |
-      | `0x04` | **GPIO_OUT** | RW | Output Data Register (Value to drive when DIR=1). |
-      | `0x08` | **GPIO_IN** | RO | Input Data Register (Read-only, debounced value). |
-      | `0x0C` | **INT_MASK** | RW | Interrupt Mask (1=Enable, 0=Masked). |
-      | `0x10` | **INT_STATUS** | RW1C | Interrupt Status (Write '1' to Clear). Sticky bit. |
-      | `0x14` | **INT_TYPE** | RW | Interrupt Type (0=Level, 1=Edge). |
-      | `0x18` | **INT_POL** | RW | Polarity (0=Fall/Low, 1=Rise/High). |
-      | `0x1C` | **DEBOUNCE** | RW | Debounce Duration (16-bit cycle count). |
+### APB Register File
+**File:** [`gpio_32_apb_regs.v`](Verilog_Code/gpio_32_apb_regs.v)
 
-    - **Pin Interface + 2-FF Synchronizer** – [`gpio_32_pins.v`](Verilog_Code/gpio_32_pins.v)  
-      The physical interface layer.
-      - **Synchronization:** Uses a standard **2-Flip-Flop synchronizer** chain to mitigate metastability risks when asynchronous external signals enter the `PCLK` domain.
-      - **Tri-State Control:** Implements the buffer logic where `gpio_dir` acts as the Output Enable (OE) for the pads.
+A memory-mapped register bank compliant with the APB protocol. It manages configuration and status reporting.
 
-    - **Debounce Engine** – [`gpio_32_debounce.v`](Verilog_Code/gpio_32_debounce.v)  
-      Filters out noise and mechanical switch bounce.
-      - **Algorithm:** Maintains a dedicated counter for each of the 32 bits. The counter increments only when the signal is stable. If the signal changes value before the target count (`debounce_cfg`) is reached, the counter resets. This ensures only "clean" transitions are propagated.
+**Register Address Map (Offsets):**
+| Offset | Name | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `0x00` | **GPIO_DIR** | RW | Direction Control (0=Input, 1=Output). |
+| `0x04` | **GPIO_OUT** | RW | Output Data Register (Value to drive when DIR=1). |
+| `0x08` | **GPIO_IN** | RO | Input Data Register (Read-only, debounced value). |
+| `0x0C` | **INT_MASK** | RW | Interrupt Mask (1=Enable, 0=Masked). |
+| `0x10` | **INT_STATUS** | RW1C | Interrupt Status (Write '1' to Clear). Sticky bit. |
+| `0x14` | **INT_TYPE** | RW | Interrupt Type (0=Level, 1=Edge). |
+| `0x18` | **INT_POL** | RW | Polarity (0=Fall/Low, 1=Rise/High). |
+| `0x1C` | **DEBOUNCE** | RW | Debounce Duration (16-bit cycle count). |
 
-    - **Interrupt Controller** – [`gpio_32_interrupts.v`](Verilog_Code/gpio_32_interrupts.v)  
-      A flexible interrupt generation unit.
-      - **Logic:** Combines the synchronized/debounced inputs with the configuration registers (Mask, Type, Polarity).
-      - **Status Handling:** Implements "Sticky" status bits—once an event is detected, the bit remains set until explicitly cleared by software (W1C), ensuring no events are missed by the CPU.
+---
 
-    - **Verification Testbench** – [`tb.v`](Verilog_Code/tb.v)  
-      A comprehensive SystemVerilog testbench.
-      - **Tests:** Includes directed tests for basic I/O, glitch injection (to prove debounce), rising-edge detection, and level-triggered interrupt clearance sequences.
+### Pin Interface + 2-FF Synchronizer
+**File:** [`gpio_32_pins.v`](Verilog_Code/gpio_32_pins.v)
 
+The physical interface layer handling the I/O pads.
+* **Synchronization:** Uses a standard **2-Flip-Flop synchronizer** chain to mitigate metastability risks when asynchronous external signals enter the `PCLK` domain.
+* **Tri-State Control:** Implements the buffer logic where `gpio_dir` acts as the Output Enable (OE) for the pads.
+
+---
+
+### Debounce Engine
+**File:** [`gpio_32_debounce.v`](Verilog_Code/gpio_32_debounce.v)
+
+Filters out noise and mechanical switch bounce.
+* **Algorithm:** Maintains a dedicated counter for each of the 32 bits. The counter increments only when the signal is stable. If the signal changes value before the target count (`debounce_cfg`) is reached, the counter resets. This ensures only "clean" transitions are propagated.
+
+---
+
+### Interrupt Controller
+**File:** [`gpio_32_interrupts.v`](Verilog_Code/gpio_32_interrupts.v)
+
+A flexible interrupt generation unit.
+* **Logic:** Combines the synchronized/debounced inputs with the configuration registers (Mask, Type, Polarity).
+* **Status Handling:** Implements "Sticky" status bits—once an event is detected, the bit remains set until explicitly cleared by software (W1C), ensuring no events are missed by the CPU.
+
+---
+
+### Verification Testbench (Module)
+**File:** [`tb.v`](Verilog_Code/tb.v)
+
+A comprehensive SystemVerilog testbench used to validate the design.
+* **Tests:** Includes directed tests for basic I/O, glitch injection (to prove debounce), rising-edge detection, and level-triggered interrupt clearance sequences.
 ---
 
 ## Data & Control Flow
