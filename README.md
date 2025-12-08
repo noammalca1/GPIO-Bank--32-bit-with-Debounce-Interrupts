@@ -198,3 +198,29 @@ On the next rising edge when **`PENABLE` asserts high**, the `gpio_out_reg` upda
 <img width="1614" height="362" alt="image" src="https://github.com/user-attachments/assets/f23ba249-fd70-43f2-b9df-fc01a708cbc2" />
 
 
+### Test 2 Analysis (Debounce Logic)
+
+This test verifies the digital noise filter. It demonstrates how the system distinguishes between transient noise ("glitches") and valid stable signals using the configurable debounce counter.
+
+#### Waveform Analysis - Step-by-Step
+
+**1. Configuration:**
+First, the testbench writes `0x0004` to `DEBOUNCE_CFG`. This sets the threshold: `debounced_gpio_in` will update **only** if the raw input remains stable for **4 consecutive clock cycles**.
+Next, `GPIO_DIR` is configured to `0xFE` (bits 1-7 are Outputs, bit 0 is an **Input**).
+
+**2. The Glitch (Rejection):**
+We inject a noisy sequence into `gpio_in_raw[0]`: logic `1` $\to$ `0` $\to$ `1` $\to$ `0`, with each state lasting only a single clock cycle.
+* **2FF Latency:** Notice that the internal debounce counter begins incrementing **2 clock cycles after** the external change. This delay is due to the 2-Flip-Flop synchronizer (`sync_gpio_in`).
+* **Counter Behavior:** The counter attempts to increment when the synchronized value differs from the current `debounced_gpio_in`. However, since the input toggles before the counter reaches the threshold of 4, the logic resets the counter.
+* **Result:** `debounced_gpio_in` remains `0`. An APB read transaction confirms that the CPU sees `0`, meaning the noise was successfully filtered out.
+
+**3. The Stable Signal (Acceptance):**
+The testbench then drives `gpio_in_raw[0]` to `1` and holds it stable for 6 clock cycles.
+* **Trigger:** The counter successfully increments (after the synchronization delay) until it hits the threshold of **4**.
+* **Update:** Exactly one clock cycle after reaching the threshold, `debounced_gpio_in` updates to `1`.
+* **Verification:** A final APB read transaction returns `PRDATA = 1`, confirming that the stable signal was correctly captured.
+
+<img width="1432" height="376" alt="image" src="https://github.com/user-attachments/assets/511b7c36-2e44-49bd-8836-db14d6a05b10" />
+
+
+
