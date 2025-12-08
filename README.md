@@ -145,3 +145,7 @@ graph TD
     
     %% Interrupt Notification
     IntCtrl -- "Event Notification (IRQ)" --> APB
+
+
+---
+
