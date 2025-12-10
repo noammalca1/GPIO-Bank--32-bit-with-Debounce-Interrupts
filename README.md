@@ -244,7 +244,8 @@ The test drives `gpio_in_raw[0]` low for 2 cycles, then transitions it to **High
     1.  The edge detector logic triggers: `rise_pulse = ~debounced_d & debounced_gpio_in` becomes `1`.
     2.  The masking logic passes the signal: `int_set_from_edges = (rise_pulse & int_rise_en)` becomes `1`.
     3.  The total set signal asserts: `int_set_total = int_set_from_edges | int_level_set` becomes `1`.
-    4.  **Sticky Latch:** The status register captures the event: `int_status <= (int_status | int_set_total) & ~int_status_w1c;` transitions to `1`.
+    4.  **Sticky Latch:** The status register captures the event: 
+                          `int_status <= (int_status | int_set_total) & ~int_status_w1c;` transitions to `1`.
     5.  **Output:** The global `gpio_irq` immediately drives high, signaling the CPU.
 
 **3. Verification & Clearing:**
