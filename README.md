@@ -244,13 +244,15 @@ The test drives `gpio_in_raw[0]` low for 2 cycles, then transitions it to **High
     1.  The edge detector logic triggers: `rise_pulse = ~debounced_d & debounced_gpio_in` becomes `1`.
     2.  The masking logic passes the signal: `int_set_from_edges = (rise_pulse & int_rise_en)` becomes `1`.
     3.  The total set signal asserts: `int_set_total = int_set_from_edges | int_level_set` becomes `1`.
-    4.  **Sticky Latch:** The status register captures the event: `int_status <= (int_status | int_set_total) ...` transitions to `1`.
+    4.  **Sticky Latch:** The status register captures the event: `int_status <= (int_status | int_set_total) & ~int_status_w1c;` transitions to `1`.
     5.  **Output:** The global `gpio_irq` immediately drives high, signaling the CPU.
 
 **3. Verification & Clearing:**
 * An APB Read transaction to `ADDR_INT_STATUS` (`0x10`) returns `PRDATA = 1`, confirming the CPU sees the interrupt.
 * The test then performs a **Write-1-to-Clear** (writes `1` to `INT_STATUS`).
 * **Result:** `int_status` clears to `0`, and `gpio_irq` de-asserts.
+
+![Interrupt Waveform Analysis](Placeholder_for_Test3_Image.png)
 
 <img width="1167" height="703" alt="image" src="https://github.com/user-attachments/assets/182a78d4-dd55-40b2-aa6f-9a1091c0c378" />
 
