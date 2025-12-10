@@ -230,7 +230,7 @@ This test verifies the interrupt generation path, specifically focusing on edge 
 
 #### Waveform Analysis - Step-by-Step
 
-**1. Configuration Sequence (Best Practice):**
+**1. Configuration Sequence :**
 The test configures bit 0 for a **Rising Edge Interrupt**.
 * First, we write to `INT_TYPE` (Edge) and `INT_POL` (Rising).
 * **Crucial:** We write to `INT_MASK` (Enable) **last**. This is a design best practice. If we enabled the mask *before* setting the type/polarity, the default values (Level/Low) might inadvertently trigger a false interrupt (e.g., if the line happened to be low) based on the logic:  
