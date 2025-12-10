@@ -252,7 +252,6 @@ The test drives `gpio_in_raw[0]` low for 2 cycles, then transitions it to **High
 * The test then performs a **Write-1-to-Clear** (writes `1` to `INT_STATUS`).
 * **Result:** `int_status` clears to `0`, and `gpio_irq` de-asserts.
 
-![Interrupt Waveform Analysis](Placeholder_for_Test3_Image.png)
 
 <img width="1167" height="703" alt="image" src="https://github.com/user-attachments/assets/182a78d4-dd55-40b2-aa6f-9a1091c0c378" />
 
