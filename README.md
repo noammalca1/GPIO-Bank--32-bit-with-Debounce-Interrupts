@@ -52,7 +52,7 @@ The system is implemented and verified in Verilog/SystemVerilog using a 100 MHz 
 ## System Overview
 
 The design is split into four main RTL blocks, connected by a clean top-level module:
-- **gpio_32_top`** – Top level module
+- **`gpio_32_top`** – Top level module
 - **`gpio_32_apb_regs`** – APB register file  
 - **`gpio_32_pins`** – Pad interface + 2FF synchronizer  
 - **`gpio_32_debounce`** – Debounce engine  
