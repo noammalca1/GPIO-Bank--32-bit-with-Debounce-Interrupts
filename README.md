@@ -17,6 +17,7 @@ The design is fully modular and built from the ground up to handle real-world GP
 
 - [Introduction](#introduction)
 - [System Overview](#system-overview)
+- [Repository Structure](#repository-structure)
 - [Modules Description](#modules-description)
     - [GPIO Top-Level](#gpio-top-level)
     - [APB Register File](#apb-register-file)
@@ -31,6 +32,7 @@ The design is fully modular and built from the ground up to handle real-world GP
     - [Test 3 Analysis (Interrupt Logic - Rising Edge)](#test-3-analysis-interrupt-logic---rising-edge)
     - [Test 4 Analysis (Interrupt Logic - Level High)](#test-4-analysis-interrupt-logic---level-high)
 - [License](#license)
+
 ---
 
 ## Introduction
@@ -60,6 +62,21 @@ The design is split into four main RTL blocks, connected by a clean top-level mo
 Top-level module: **`gpio_32_top`** Testbench: **`tb_gpio_32`**
 
 ---
+
+## Repository Structure
+
+```text
+.
+├── Verilog_Code/              # RTL Source files and Testbench
+│   ├── gpio_32_top.v          # Top-level design module
+│   ├── gpio_32_apb_regs.v     # APB register file
+│   ├── gpio_32_debounce.v     # Debounce logic
+│   ├── gpio_32_interrupts.v   # Interrupt controller
+│   ├── gpio_32_pins.v         # Pad interface & Synchronizer
+│   └── tb_gpio_32.v           # SystemVerilog testbench
+├── docs/                      # Documentation assets (Images/Waveforms)
+├── LICENSE                    # MIT License
+└── README.md                  # Project Documentation
 
 ## Modules Description
 
