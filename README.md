@@ -64,7 +64,7 @@ The design is split into four main RTL blocks, connected by a clean top-level mo
 ## Repository Structure
 
 ```text
-.
+
 ├── Verilog_Code/              # RTL Source files and Testbench
 │   ├── gpio_32_top.v          # Top-level design module
 │   ├── gpio_32_apb_regs.v     # APB register file
