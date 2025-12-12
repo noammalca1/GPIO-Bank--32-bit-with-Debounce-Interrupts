@@ -120,6 +120,25 @@ module tb_gpio_32;
   endtask
 
   // ---------------------------------------------------------------------------
+  // Global reset / cleanup task
+  // ---------------------------------------------------------------------------
+  task automatic reset_dut();
+    begin
+      // Put external stimuli into a known idle state
+      apb_idle();
+      gpio_in_raw = '0;
+
+      // Assert reset
+      PRESETn = 0;
+      repeat (5) @(posedge PCLK);
+
+      // Deassert reset and wait a bit for things to settle
+      PRESETn = 1;
+      repeat (5) @(posedge PCLK);
+    end
+  endtask
+
+  // ---------------------------------------------------------------------------
   // Address map (byte offsets)
   // ---------------------------------------------------------------------------
   localparam [7:0] ADDR_GPIO_DIR      = 8'h00;
@@ -138,14 +157,8 @@ module tb_gpio_32;
     int i;
     reg [31:0] rdata;
 
-    apb_idle();
-    gpio_in_raw = 32'h00000000;
-
-    // Reset sequence
-    PRESETn = 0;
-    repeat (5) @(posedge PCLK);
-    PRESETn = 1;
-    repeat (5) @(posedge PCLK);
+    // Global clean state before starting any test
+    reset_dut();
 
     $display("[%0t] Starting GPIO32 tests", $time);
 
@@ -164,6 +177,9 @@ module tb_gpio_32;
       $error("TEST1: gpio_out mismatch (lower byte)");
 
     $display("[%0t] TEST1 done", $time);
+
+    // ---------------- CLEANUP AFTER TEST1 ----------------------------------
+    reset_dut();
 
     // =======================================================================
     // TEST 2 — Debounce filtering
@@ -194,12 +210,16 @@ module tb_gpio_32;
 
     $display("[%0t] TEST2 done", $time);
 
+    // ---------------- CLEANUP AFTER TEST2 ----------------------------------
+    reset_dut();
+
     // =======================================================================
     // TEST 3 — EDGE interrupt (rising edge)
     // =======================================================================
-    apb_write(ADDR_INT_MASK,     32'h0000_0001);
+    apb_write(ADDR_DEBOUNCE_CFG, 32'h0000_0003);
     apb_write(ADDR_INT_TYPE,     32'h0000_0001); // EDGE
     apb_write(ADDR_INT_POLARITY, 32'h0000_0001); // rising
+    apb_write(ADDR_INT_MASK,     32'h0000_0001);
 
     apb_write(ADDR_INT_STATUS, 32'hFFFF_FFFF); // clear all
     repeat (2) @(posedge PCLK);
@@ -233,6 +253,10 @@ module tb_gpio_32;
 
     $display("[%0t] TEST3 interrupt clear OK", $time);
 
+    // ---------------- CLEANUP AFTER TEST3 ----------------------------------
+    reset_dut();
+    repeat (10) @(posedge PCLK);
+
     // =======================================================================
     // TEST 4 — LEVEL interrupt (ACTIVE HIGH)
     // =======================================================================
@@ -242,20 +266,21 @@ module tb_gpio_32;
     //  int_mask     = 1  (enable)
     //  int_type     = 0  (LEVEL)
     //  int_polarity = 1  (ACTIVE-HIGH)
-    apb_write(ADDR_INT_MASK,     32'h0000_0001);
+    apb_write(ADDR_DEBOUNCE_CFG, 32'h0000_0002);
     apb_write(ADDR_INT_TYPE,     32'h0000_0000);
     apb_write(ADDR_INT_POLARITY, 32'h0000_0001);
+    apb_write(ADDR_INT_MASK,     32'h0000_0001);
 
     apb_write(ADDR_INT_STATUS, 32'hFFFF_FFFF); // clear any leftovers
     repeat (2) @(posedge PCLK);
 
     // Ensure input LOW
     gpio_in_raw[0] = 0;
-    repeat (6) @(posedge PCLK);
+    repeat (1) @(posedge PCLK);
 
     // Drive input HIGH: LEVEL-HIGH should assert interrupt immediately
     gpio_in_raw[0] = 1;
-    repeat (6) @(posedge PCLK);
+    repeat (3) @(posedge PCLK);
 
     apb_read(ADDR_INT_STATUS, rdata);
 
@@ -269,7 +294,7 @@ module tb_gpio_32;
 
     // Try clearing while level is STILL HIGH → expected to reassert
     apb_write(ADDR_INT_STATUS, 32'h0000_0001);
-    repeat (2) @(posedge PCLK);
+    repeat (6) @(posedge PCLK);
 
     apb_read(ADDR_INT_STATUS, rdata);
 
@@ -299,10 +324,15 @@ module tb_gpio_32;
 
     $display("[%0t] TEST4: LEVEL-HIGH interrupt clear OK", $time);
 
+    // Optional: final cleanup as well
+    reset_dut();
+ repeat (12) @(posedge PCLK);
     // -----------------------------------------------------------------------
     $display("[%0t] All tests finished", $time);
     #50;
     $finish;
+   
   end
+  
 
 endmodule
