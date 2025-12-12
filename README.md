@@ -73,7 +73,8 @@ Top-level module: **`gpio_32_top`** Testbench: **`tb_gpio_32`**
 │   ├── gpio_32_debounce.v     # Debounce logic
 │   ├── gpio_32_interrupts.v   # Interrupt controller
 │   ├── gpio_32_pins.v         # Pad interface & Synchronizer
-│   └── tb_gpio_32.v           # SystemVerilog testbench            
+│   └── tb_gpio_32.v           # SystemVerilog testbench
+├── docs/                      # Documentation assets (Images/Waveforms)
 ├── LICENSE                    # MIT License
 └── README.md                  # Project Documentation
 ```
