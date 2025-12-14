@@ -216,7 +216,7 @@ On the next rising edge when **`PENABLE` asserts high**, the `gpio_out_reg` upda
 
 ### Test 2 Analysis (Debounce Logic)
 
-This test verifies the digital noise filter. It demonstrates how the system distinguishes between transient noise ("glitches") and valid stable signals using the configurable debounce counter.
+This test verifies the digital noise filter. It demonstrates how the system differentiates between transient noise ("glitches") and valid stable signals using the configurable debounce counter.
 
 #### Waveform Analysis - Step-by-Step
 
