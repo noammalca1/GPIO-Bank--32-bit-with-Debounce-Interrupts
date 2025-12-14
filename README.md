@@ -241,32 +241,33 @@ The testbench then drives `gpio_in_raw[0]` to `1` and holds it stable for 6 cloc
 
 ### Test 3 Analysis (Interrupt Logic - Rising Edge)
 
-This test verifies the interrupt generation path, specifically focusing on edge detection, sticky status behavior, and the Write-1-to-Clear (W1C) mechanism.
+This testbench verifies the interrupt generation path, specifically focusing on edge detection, sticky status behavior, and the Write-1-to-Clear (W1C) mechanism.
 
 #### Waveform Analysis - Step-by-Step
 
-**1. Configuration Sequence :**
-The test configures bit 0 for a **Rising Edge Interrupt**.
-* First, we write to `INT_TYPE` (Edge) and `INT_POL` (Rising).
-* **Crucial:** We write to `INT_MASK` (Enable) **last**. This is a design best practice. If we enabled the mask *before* setting the type/polarity, the default values (Level/Low) might inadvertently trigger a false interrupt (e.g., if the line happened to be low) based on the logic:  
-    `level_low_active = mask & ~type & ~polarity & ~input`.
-* Finally, we perform a W1C to `INT_STATUS` to ensure a clean starting state.
+**1. Configuration Sequence**
+The testbench configures bit 0 for a **Rising Edge Interrupt**.
+* First, the `INT_TYPE` (Edge) and `INT_POL` (Rising) registers are programmed.
+* **Crucial Design Note:** The `INT_MASK` (Enable) is written **last**. This adheres to design best practices. Enabling the mask *prior* to setting the type/polarity could inadvertently trigger a false interrupt (e.g., if the line happened to be low) based on the default logic:
+    `level_low_active = mask & ~type & ~polarity & ~input`
+* Finally, a W1C operation is performed on `INT_STATUS` by the testbench to ensure a clean starting state.
 
-**2. Stimulus & Propagation:**
-The test drives `gpio_in_raw[0]` low for 2 cycles, then transitions it to **High** for 6 cycles.
-* **Latency:** After approximately 5 cycles (due to the 2-FF Synchronizer + Debounce counter), `debounced_gpio_in[0]` updates to `1`.
+**2. Stimulus & Propagation**
+The testbench drives `gpio_in_raw[0]` Low for 2 cycles, then transitions it to **High** for 6 cycles.
+* **Latency:** After approximately 5 cycles (accounting for the 2-FF Synchronizer + Debounce counter), `debounced_gpio_in[0]` updates to `1`.
 * **Internal Logic Chain:**
     1.  The edge detector logic triggers: `rise_pulse = ~debounced_d & debounced_gpio_in` becomes `1`.
-    2.  The masking logic passes the signal: `int_set_from_edges = (rise_pulse & int_rise_en)` becomes `1`.
+    2.  The masking logic propagates the signal: `int_set_from_edges = (rise_pulse & int_rise_en)` becomes `1`.
     3.  The total set signal asserts: `int_set_total = int_set_from_edges | int_level_set` becomes `1`.
     4.  **Sticky Latch:** The status register captures the event:
-                          `int_status <= (int_status | int_set_total) & ~int_status_w1c;` transitions to `1`.
-    6.  **Output:** The global `gpio_irq` immediately drives high, signaling the CPU.
+        `int_status <= (int_status | int_set_total) & ~int_status_w1c`
+        transitions to `1`.
+    5.  **Output:** The global `gpio_irq` output immediately drives high, signaling the CPU.
 
-**3. Verification & Clearing:**
-* An APB Read transaction to `ADDR_INT_STATUS` (`0x10`) returns `PRDATA = 1`, confirming the CPU sees the interrupt.
-* The test then performs a **Write-1-to-Clear** (writes `1` to `INT_STATUS`).
-* **Result:** `int_status` clears to `0`, and `gpio_irq` de-asserts.
+**3. Verification & Clearing**
+* An APB Read transaction to `ADDR_INT_STATUS` (`0x10`) returns `PRDATA = 1`, confirming the interrupt is visible to the CPU.
+* Subsequently, a **Write-1-to-Clear** operation is executed by the testbench (writing `1` to `INT_STATUS`).
+* **Result:** `int_status` clears to `0`, and the `gpio_irq` line de-asserts.
 
 
 <img width="1167" height="703" alt="image" src="https://github.com/user-attachments/assets/182a78d4-dd55-40b2-aa6f-9a1091c0c378" />
