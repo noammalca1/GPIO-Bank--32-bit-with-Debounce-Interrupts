@@ -8,7 +8,7 @@ Full APB based 32 bit GPIO peripheral featuring 2FF input synchronization, progr
 **Focus:** Digital Design - GPIO, APB, Debounce, and Interrupts
 
 This project implements a complete 32-bit GPIO peripheral in Verilog HDL, suitable for integration into APB-based SoC designs.  
-It includes a memory-mapped APB register file, a 2-flop input synchronizer, per-bit digital debounce, a configurable edge/level interrupt controller, and a self-checking Verilog testbench (`tb_gpio_32`) that verifies GPIO direction, debounce behavior, and interrupt functionality.
+It includes a memory-mapped APB register file, a 2 flip-flop input synchronizer, per-bit digital debounce, a configurable edge/level interrupt controller, and a self-checking Verilog testbench (`tb_gpio_32`) that verifies GPIO direction, debounce behavior, and interrupt functionality.
 
 The design is fully modular and built from the ground up to handle real-world GPIO use cases such as button inputs, status signals, and event-driven interrupts, while protecting against metastability and mechanical switch bounce.
 
