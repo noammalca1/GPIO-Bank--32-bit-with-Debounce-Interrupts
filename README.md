@@ -68,7 +68,7 @@ The design is split into four main RTL blocks, connected by a clean top-level mo
 ├── Verilog_Code/              # RTL Source files and Testbench
 │   ├── gpio_32_top.v          # Top-level design module
 │   ├── gpio_32_apb_regs.v     # APB register file
-│   ├── gpio_32_debounce.v     # Debounce logic
+│   ├── gpio_32_debounce.v     # Debounce engine
 │   ├── gpio_32_interrupts.v   # Interrupt controller
 │   ├── gpio_32_pins.v         # Pad interface & Synchronizer
 │   └── tb_gpio_32.v           # Verilog testbench
