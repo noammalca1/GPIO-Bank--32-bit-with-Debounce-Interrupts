@@ -184,7 +184,7 @@ graph TD
     %% Interrupt Notification
     IntCtrl -- "Interrupt Request (IRQ)" --> APB
 ```
-
+---
 
 ## Verification Testbench (Simulation and Waveforms)
 
